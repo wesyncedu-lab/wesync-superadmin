@@ -1,45 +1,44 @@
 "use client";
 import {
-    CategoryScale,
-    Chart as ChartJS,
-    Legend,
-    LinearScale,
-    LineElement,
-    PointElement,
-    Tooltip,
+  CategoryScale,
+  Chart as ChartJS,
+  LinearScale,
+  LineElement,
+  PointElement,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend);
+ChartJS.register(LineElement, PointElement, CategoryScale, LinearScale);
 
-export default function RevenueChart({ labels = [], data = [] }) {
-  const cfg = {
-    labels,
-    datasets: [
-      {
-        label: "Revenue (₹)",
-        data,
-        borderColor: "#2563EB",
-        backgroundColor: "rgba(37,99,235,0.12)",
-        tension: 0.35,
-        pointRadius: 3,
-        pointBackgroundColor: "#fff",
-        pointBorderColor: "#2563EB"
-      },
-    ],
-  };
-
-  const options = {
-    plugins: { legend: { display: false } },
-    maintainAspectRatio: false,
-    scales: {
-      y: { ticks: { callback: (v) => `₹ ${v}` } }
-    }
-  };
-
+export default function RevenueChart({ labels, data }) {
   return (
-    <div className="w-full" style={{ height: 300 }}>
-      <Line data={cfg} options={options} />
+    <div>
+      <h2 className="text-lg font-semibold mb-4">Monthly Revenue</h2>
+      <Line
+        data={{
+          labels,
+          datasets: [
+            {
+              label: "Revenue",
+              data,
+              borderWidth: 3,
+              tension: 0.4,
+              borderColor: "#2563eb",
+              pointRadius: 0,
+              fill: false,
+            },
+          ],
+        }}
+        options={{
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { display: false } },
+            y: { grid: { color: "#f1f1f1" } },
+          },
+        }}
+      />
     </div>
   );
 }
+

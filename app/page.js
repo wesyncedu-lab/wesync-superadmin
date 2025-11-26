@@ -4,15 +4,52 @@ import { useState } from "react";
 
 export default function AdminLogin() {
   const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [resetEmail, setResetEmail] = useState("");
+  const [showReset, setShowReset] = useState(false);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
 
-    setTimeout(() => {
-      setLoading(false);
+    const res = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
       window.location.href = "/dashboard";
-    }, 900);
+    } else {
+      alert("Invalid email or password");
+    }
+
+    setLoading(false);
+  };
+
+  const handleResetPassword = async () => {
+    if (!resetEmail) {
+      alert("Enter email");
+      return;
+    }
+
+    const res = await fetch("/api/auth/reset", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: resetEmail }),
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      alert("Password reset email sent!");
+      setShowReset(false);
+    } else {
+      alert("Failed to send reset email");
+    }
   };
 
   return (
@@ -48,38 +85,84 @@ export default function AdminLogin() {
           Sign in to continue
         </p>
 
-        {/* Form */}
-        <form onSubmit={handleLogin} className="flex flex-col gap-5">
+        {/* LOGIN FORM */}
+        {!showReset && (
+          <form onSubmit={handleLogin} className="flex flex-col gap-5">
 
-          <input
-            type="text"
-            placeholder="Email / Username"
-            className="w-full px-4 py-3 rounded-xl bg-white/60 border border-white/50 text-gray-700 shadow-sm 
-                       focus:ring-2 focus:ring-blue-400 outline-none backdrop-blur-lg"
-            required
-          />
+            <input
+              type="email"
+              placeholder="Email"
+              className="w-full px-4 py-3 rounded-xl bg-white/60 border border-white/50 text-gray-700 shadow-sm 
+                         focus:ring-2 focus:ring-blue-400 outline-none backdrop-blur-lg"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
 
-          <input
-            type="password"
-            placeholder="Password"
-            className="w-full px-4 py-3 rounded-xl bg-white/60 border border-white/50 text-gray-700 shadow-sm 
-                       focus:ring-2 focus:ring-blue-400 outline-none backdrop-blur-lg"
-            required
-          />
+            <input
+              type="password"
+              placeholder="Password"
+              className="w-full px-4 py-3 rounded-xl bg-white/60 border border-white/50 text-gray-700 shadow-sm 
+                         focus:ring-2 focus:ring-blue-400 outline-none backdrop-blur-lg"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3 rounded-xl bg-blue-600 text-white font-semibold text-lg 
-                       shadow-lg hover:bg-blue-700 transition disabled:opacity-40"
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-3 rounded-xl bg-blue-600 text-white font-semibold text-lg 
+                         shadow-lg hover:bg-blue-700 transition disabled:opacity-40"
+            >
+              {loading ? "Processing..." : "Login"}
+            </button>
+          </form>
+        )}
+
+        {/* RESET PASSWORD FORM */}
+        {showReset && (
+          <div className="flex flex-col gap-5">
+
+            <input
+              type="email"
+              placeholder="Enter your admin email"
+              className="w-full px-4 py-3 rounded-xl bg-white/60 border border-white/50 shadow-sm 
+                         focus:ring-2 focus:ring-blue-400 outline-none backdrop-blur-lg"
+              value={resetEmail}
+              onChange={(e) => setResetEmail(e.target.value)}
+            />
+
+            <button
+              onClick={handleResetPassword}
+              className="w-full py-3 rounded-xl bg-blue-600 text-white font-semibold text-lg hover:bg-blue-700"
+            >
+              Send Reset Email
+            </button>
+
+            <button
+              onClick={() => setShowReset(false)}
+              className="w-full py-2 text-blue-600 font-medium hover:underline"
+            >
+              Back to Login
+            </button>
+          </div>
+        )}
+
+        {/* RESET LINK */}
+        {!showReset && (
+          <p
+            onClick={() => setShowReset(true)}
+            className="text-center text-blue-600 mt-4 text-sm hover:underline cursor-pointer"
           >
-            {loading ? "Processing..." : "Login"}
-          </button>
-        </form>
+            Forgot Password?
+          </p>
+        )}
 
         <p className="text-center text-gray-500 text-sm mt-8">
           © {new Date().getFullYear()} WeSync — All Rights Reserved
         </p>
+
       </div>
     </div>
   );

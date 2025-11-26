@@ -1,38 +1,40 @@
 "use client";
 import {
-    BarElement,
-    CategoryScale,
-    Chart as ChartJS,
-    Legend,
-    LinearScale,
-    Tooltip,
+  BarElement,
+  CategoryScale,
+  Chart as ChartJS,
+  LinearScale,
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
+ChartJS.register(BarElement, CategoryScale, LinearScale);
 
-export default function PlanBarChart({ labels = [], data = [] }) {
-  const cfg = {
-    labels,
-    datasets: [
-      {
-        label: "Schools",
-        data,
-        backgroundColor: ["#A5F3FC", "#93C5FD", "#60A5FA", "#2563EB"],
-        borderRadius: 6,
-      },
-    ],
-  };
-
-  const options = {
-    plugins: { legend: { display: false } },
-    maintainAspectRatio: false,
-    scales: { x: { grid: { display: false } }, y: { beginAtZero: true } },
-  };
-
+export default function PlanBarChart({ labels, data }) {
   return (
-    <div style={{ height: 260 }}>
-      <Bar data={cfg} options={options} />
+    <div>
+      <h2 className="text-lg font-semibold mb-4">Plan Distribution</h2>
+      <Bar
+        data={{
+          labels,
+          datasets: [
+            {
+              label: "Schools",
+              data,
+              backgroundColor: "#10b981",
+              borderRadius: 8,
+            },
+          ],
+        }}
+        options={{
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { display: false } },
+            y: { grid: { color: "#f1f1f1" } },
+          },
+        }}
+      />
     </div>
   );
 }
+

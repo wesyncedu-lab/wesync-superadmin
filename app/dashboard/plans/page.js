@@ -1,89 +1,105 @@
 "use client";
 
-import { deletePlan, getPlans } from "@/lib/planService";
+import { fetchPlans } from "@/lib/planService";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { FiEdit, FiLayers, FiPlus, FiTrash2 } from "react-icons/fi";
 
 export default function PlansPage() {
   const [plans, setPlans] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setPlans(getPlans());
+    async function load() {
+      const data = await fetchPlans();
+      setPlans(data);
+      setLoading(false);
+    }
+    load();
   }, []);
 
-  const handleDelete = (index) => {
-    if (confirm("Are you sure you want to delete this plan?")) {
-      deletePlan(index);
-      setPlans(getPlans()); // refresh UI
-    }
-  };
+  if (loading) {
+    return (
+      <div className="p-6 min-h-screen flex items-center justify-center text-gray-600">
+        Loading plans…
+      </div>
+    );
+  }
 
   return (
-    <div className="p-2">
+    <div className="p-6 bg-gray-50 min-h-screen">
+      <div className="max-w-5xl mx-auto">
 
-      {/* HEADER */}
-      <div className="flex items-center justify-between mb-10">
-        <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-          <FiLayers className="text-blue-600 text-4xl" /> Plans
-        </h1>
-
-        <Link
-          href="/dashboard/plans/new"
-          className="px-5 py-2.5 bg-blue-600 text-white rounded-lg flex items-center gap-2 shadow hover:bg-blue-700 transition"
-        >
-          <FiPlus className="text-lg" /> Add New Plan
-        </Link>
-      </div>
-
-      {/* PLAN CARDS */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {plans.map((p, index) => (
-          <div
-            key={index}
-            className="p-6 bg-white border shadow-md rounded-2xl hover:shadow-xl transition-all group"
+        {/* HEADER */}
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-2xl font-semibold">Plans</h1>
+          <Link
+            href="/dashboard/plans/new"
+            className="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow-sm"
           >
-            <h2 className="text-2xl font-bold group-hover:text-blue-600 transition">
-              {p.name}
-            </h2>
+            + Create Plan
+          </Link>
+        </div>
 
-            <p className="text-4xl font-extrabold text-blue-600 mt-3">
-              {p.price}
-            </p>
+        {/* PLANS TABLE */}
+        <div className="bg-white shadow-sm rounded-xl border overflow-hidden">
+          <table className="w-full text-left">
+            <thead className="text-gray-500 text-sm border-b bg-gray-50">
+              <tr>
+                <th className="py-3 px-4">Plan Name</th>
+                <th className="px-4">Price</th>
+                <th className="px-4">Students</th>
+                <th className="px-4">Storage</th>
+                <th className="px-4">Modules</th>
+                <th className="px-4">Status</th>
+                <th className="px-4">Actions</th>
+              </tr>
+            </thead>
 
-            <p className="text-gray-600 mt-2 text-sm">
-              {p.schools} school{p.schools > 1 ? "s" : ""}
-            </p>
+            <tbody>
+              {plans.map((p) => (
+                <tr key={p.id} className="border-b hover:bg-gray-50 transition">
+                  
+                  <td className="py-3 px-4 font-medium">{p.name}</td>
 
-            {/* STATUS */}
-            <span
-              className={`inline-block mt-5 px-3 py-1 rounded-full text-xs font-semibold ${
-                p.active
-                  ? "bg-green-100 text-green-700"
-                  : "bg-gray-200 text-gray-600"
-              }`}
-            >
-              {p.active ? "Active" : "Inactive"}
-            </span>
+                  <td className="px-4">₹ {p.price}/mo</td>
 
-            {/* ACTION BUTTONS */}
-            <div className="flex items-center gap-4 mt-6">
-              <Link
-                href={`/dashboard/plans/${index}/edit`}
-                className="text-blue-600 hover:underline flex items-center gap-1"
-              >
-                <FiEdit /> Edit
-              </Link>
+                  <td className="px-4">{p.students}</td>
 
-              <button
-                onClick={() => handleDelete(index)}
-                className="text-red-600 hover:underline flex items-center gap-1"
-              >
-                <FiTrash2 /> Delete
-              </button>
-            </div>
-          </div>
-        ))}
+                  <td className="px-4">{p.storage}</td>
+
+                  <td className="px-4 text-sm text-gray-600">
+                    {Array.isArray(p.modules)
+                      ? p.modules.join(", ")
+                      : "—"}
+                  </td>
+
+                  <td className="px-4">
+                    <span
+                      className={`px-3 py-1 text-sm rounded-full ${
+                        p.status === "active"
+                          ? "bg-green-100 text-green-700"
+                          : "bg-red-100 text-red-700"
+                      }`}
+                    >
+                      {p.status}
+                    </span>
+                  </td>
+
+                  <td className="px-4">
+                    <Link
+                      href={`/dashboard/plans/${p.id}/edit`}
+                      className="text-blue-600 hover:underline"
+                    >
+                      Edit
+                    </Link>
+                  </td>
+
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
       </div>
     </div>
   );

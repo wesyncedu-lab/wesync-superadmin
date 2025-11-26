@@ -1,22 +1,16 @@
-"use client";
-
-export default function ActivityList({ items = [] }) {
+export default function ActivityList({ items }) {
   return (
-    <div className="bg-white p-6 rounded-2xl shadow-sm border">
+    <div className="bg-white p-6 rounded-2xl border shadow-sm">
       <h3 className="text-lg font-semibold mb-4">Recent Activity</h3>
-      <ul className="space-y-3">
-        {items.map((it) => (
-          <li key={it.id} className="flex items-start gap-3">
-            <div className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-sm text-gray-600">
-              🔔
-            </div>
-            <div className="flex-1 text-sm">
-              <div className="text-gray-800">{it.text}</div>
-              <div className="text-xs text-gray-400 mt-1">{it.time}</div>
-            </div>
-          </li>
+
+      <div className="space-y-4">
+        {items.map((item) => (
+          <div key={item.id} className="flex flex-col bg-gray-50 p-3 rounded-xl border">
+            <p className="text-gray-700">{item.text}</p>
+            <span className="text-xs text-gray-500 mt-1">{item.time}</span>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }
